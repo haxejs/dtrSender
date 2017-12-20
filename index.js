@@ -23,8 +23,11 @@ sql.connect(config).then(pool =>{
             let events = [];
             events = events.concat(...result.recordsets);
 
-            //check events.length = 64*config.tables.length, 
-            //if not return setTimeout(scan,1000);//try again
+            if (events.length !== config.tables.length*64){
+                console.log('the num of records is not correct');
+                return setTimeout(scan,10000);//try again,will DTR batch insert/update?
+            }
+            events = events.filter(event => {return event.OnLine});//only online machines
 
             console.log(JSON.stringify(events));
             //send to cloud
