@@ -1,0 +1,22 @@
+{
+    "user":"SA",
+    "password":"UgIpw123",
+    "port":1433,
+    "server": "localhost",
+    "database": "TestDB",
+    "options": {
+        "encrypt": true
+    },
+    "cloud":{
+        "baseurl":"http://localhost:3000/api",
+        "appid":"dtr@ugen.cn",
+        "appsecret":"123456"
+    },
+    "tables":[{
+        "name":"Inventory",
+        "base":0
+    },{
+        "name":"Inventory_1",
+        "base":100
+    }]
+}
