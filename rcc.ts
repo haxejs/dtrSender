@@ -1,7 +1,7 @@
 import * as rest from "restler";
 
 class RCC{
-  private token:{id:string,ttl:number,startTime:number} = null;
+  private token:{id:string,ttl:number,startTime:number,userId:string|number} = null;
   private rcc_url = "http://localhost:3000/api";
   private static instance:RCC = null;
   public static getInstance(baseurl:string, appid:string, appsecret:string){
@@ -48,7 +48,7 @@ class RCC{
     });
   }
 
-  private _request(url,data,callback:Function){
+  private _requestByPost(url,data,callback:Function){
     var self = this;
     var mOptions = {headers:{Authorization:self.token.id}};
 
@@ -68,12 +68,40 @@ class RCC{
     });
   }
 
+  private _requestByPut(url,data,callback:Function){
+    var self = this;
+    var mOptions = {headers:{Authorization:self.token.id}};
 
-  public sendEvent(payload:{},callback:Function){
+    rest.putJson(url,data,mOptions).on('success', function(data, response) {
+      callback(null,data);
+    }).on('fail', function(data, response) {
+      if (response.statusCode===401){//invalidate token if AUTHORIZATION_REQUIRED
+        self.token = null;
+      }
+      callback(data,response);
+    }).on('error', function(err,response) {
+      callback(err,response);
+    }).on('abort', function() {
+      callback(new Error("aborted"));
+    }).on('timeout', function(ms) {
+      callback(new Error("timeout[ms]:"+ms));
+    });
+  }
+
+
+  public sendEvent(payload:any,callback:Function){
     var self = this;
     self._validateToken(function(err){
       if (err) return callback(err);
-      self._request(self.rcc_url+"/Events",payload,callback);
+      self._requestByPost(self.rcc_url+"/Events",payload,callback);
+    });
+  }
+
+  public heartBeat(callback:Function){
+    var self = this;
+    self._validateToken(function(err){
+      if (err) return callback(err);
+      self._requestByPut(self.rcc_url+"/Customers/"+self.token.userId+"/heartBeat",{},callback);
     });
   }
 

@@ -8,35 +8,51 @@ if (!config.tables || !config.cloud){
 }
 
 var rcc = require('./rcc').getInstance(config.cloud.baseurl,config.cloud.appid,config.cloud.appsecret);
-const sql = require('mssql');
-sql.on('error', console.error);
 
+//keep heartBeat every minute
+function heartBeat(){
+    rcc.heartBeat((err)=>{
+        setTimeout(heartBeat,60000);
+    });
+}
+heartBeat();
+
+//scan ms sql server and send records to cloud
 let queryStr = "";
 for(let i=0;i<config.tables.length;i++){
     queryStr += 'select * from ' + config.tables[i].name + ';'
 }
 
+const sql = require('mssql');
+sql.on('error', console.error);
+
 sql.connect(config).then(pool =>{
     async function scan(){
         try{
             let result = await pool.request().query(queryStr); 
-            let events = [];
-            events = events.concat(...result.recordsets);
-
-            if (events.length !== config.tables.length*64){
-                console.log('the num of records is not correct');
-                return setTimeout(scan,10000);//try again,will DTR batch insert/update?
+            //make MachineNumber unique if there are more than 1 dtr in dying factory
+            for(let i=0;i<config.tables.length;i++){
+                result.recordsets[i].forEach(record => {
+                    record.MachineNumber += config.tables[i].base;
+                });
             }
-            events = events.filter(event => {return event.OnLine});//only online machines
 
-            console.log(JSON.stringify(events));
-            //send to cloud
-            rcc.sendEvent(events,(err)=>{
-                if (err){
-                    console.error(JSON.stringify(err));
-                    rcc.sendEvent(events,(err)=>{if(err) console.error(JSON.stringify(err));});
-                }
-            });           
+            //join records together
+            let records = [];
+            records = records.concat(...result.recordsets); 
+            //console.log(JSON.stringify(records)); 
+
+            //only online machines or machines with assigned name to be useful
+            records = records.filter(record => {return record.OnLine || (record.MachineName && record.MachineName.length>0)});            
+            
+            if (records.length > 0){
+                //send to cloud
+                rcc.sendEvent(records,(err)=>{
+                    if (err){
+                        console.error(JSON.stringify(err));
+                    }
+                });   
+            }                    
         }catch(err){
             console.error(JSON.stringify(err));
         }    
