@@ -3,7 +3,7 @@
     "password":"UgIpw123",
     "port":1433,
     "server": "localhost",
-    "database": "TestDB",
+    "database": "DTRDBSERVER",
     "options": {
         "encrypt": true
     },
@@ -13,10 +13,34 @@
         "appsecret":"123456"
     },
     "tables":[{
-        "name":"Inventory",
-        "base":0
-    },{
-        "name":"Inventory_1",
+        "name":"Machine_Info_1",
+        "encoding":"BIG5",
         "base":100
-    }]
+    }],
+    "charFields":["MachineName","MachineState","MachineMode",
+        "MachineCallState","BatchName",
+        "DyeProgName","Sub_DyeProgName",
+        "Ratio_1","Ratio_2",
+        "MachineIns1_Text","MachineIns1_Value",
+        "MachineIns2_Text","MachineIns2_Value",
+        "MachineIns3_Text","MachineIns3_Value",
+        "MachineIns4_Text","MachineIns4_Value",
+        "MachineIns5_Text","MachineIns5_Value",
+        "MachineIns6_Text","MachineIns6_Value",
+        "MachineMainTemp","MachineTemp2",
+        "MachineTemp3","MachineTemp4",
+        "MachineAIn1","MachineAIn2",
+        "MachineAIn3","MachineAIn4",
+        "MachineAIn5","MachineAIn6",
+        "MachineAIn7","MachineAIn8",
+        "MachineAOut1","MachineAOut2",
+        "MachineAOut3","MachineAOut4",
+        "MachineAOut5","MachineAOut6",
+        "MachineAOut7","MachineAOut8",
+        "Water_Vol1_Total","Water_Vol2_Total",
+        "Water_Vol3_Total","Water_Vol4_Total",
+        "Steam_Vol_Total","Power_Total",
+        "Str_Space_1","Str_Space_2","Str_Space_3",
+        "Str_Space_4","Str_Space_5"
+    ]
 }

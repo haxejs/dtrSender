@@ -8,6 +8,7 @@ if (!config.tables || !config.cloud){
 }
 
 var rcc = require('./rcc').getInstance(config.cloud.baseurl,config.cloud.appid,config.cloud.appsecret);
+var iconv = require('iconv-lite');
 
 //keep heartBeat every minute
 function heartBeat(){
@@ -27,6 +28,7 @@ const sql = require('mssql');
 sql.on('error', console.error);
 
 sql.connect(config).then(pool =>{
+    console.log("connect ms sql successfully!");
     async function scan(){
         try{
             let result = await pool.request().query(queryStr); 
@@ -34,7 +36,11 @@ sql.connect(config).then(pool =>{
             for(let i=0;i<config.tables.length;i++){
                 result.recordsets[i].forEach(record => {
                     record.MachineNumber += config.tables[i].base;
-                });
+                    config.charFields.forEach(field => {                       
+                        let buffer = new Buffer(record[field], "binary");
+                        record[field] = iconv.decode(buffer,config.tables[i].encoding).trim();               
+                    });                    
+                });                
             }
 
             //join records together
@@ -58,6 +64,6 @@ sql.connect(config).then(pool =>{
         }    
         setTimeout(scan,30000);          
     }
-    scan();    
+    scan();
 }).catch(console.error);
 

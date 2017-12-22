@@ -3,6 +3,7 @@
   "description": "scan ms sql server timely and send to dtr cloud",
   "version": "0.0.1",
   "dependencies": {
+    "iconv-lite": "^0.4.19",
     "mssql": "^4.1.0",
     "restler": "^3.4.0",
     "ts-node": "^3.3.0",
