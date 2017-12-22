@@ -1,3 +1,8 @@
+/*
+    encoding in config.json can be BIG5 or GBK, 
+    please check https://github.com/ashtuchkin/iconv-lite
+*/
+
 'use strict';
 require('ts-node/register');
 
